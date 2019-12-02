@@ -2,26 +2,27 @@
 # files are produced only once, but rely on different definitons to enable ISA
 # features, the current way to handle this is to build one library at the time.
 #
-#    make libremill_aarch64be.so -B
-#    make libremill_aarch64.so -B
-#    make libremill_x86.so -B
-#    make libremill_x86_avx.so -B
-#    make libremill_x86_avx512.so -B
-#    make libremill_amd64.so -B
-#    make libremill_amd64_avx.so -B
-#    make libremill_amd64_avx512.so -B
+#    make libremill.a
+#    make libremill_aarch64be.a -B
+#    make libremill_aarch64.a -B
+#    make libremill_x86.a -B
+#    make libremill_x86_avx.a -B
+#    make libremill_x86_avx512.a -B
+#    make libremill_amd64.a -B
+#    make libremill_amd64_avx.a -B
+#    make libremill_amd64_avx512.a -B
 
 AARCH64_TARGETS=\
-	libremill_aarch64be.so \
-	libremill_aarch64.so   \
+	libremill_aarch64be.a \
+	libremill_aarch64.a   \
 
 X86_TARGETS=\
-	libremill_x86.so          \
-	libremill_x86_avx.so      \
-	libremill_x86_avx512.so   \
-	libremill_amd64.so        \
-	libremill_amd64_avx.so    \
-	libremill_amd64_avx512.so \
+	libremill_x86.a          \
+	libremill_x86_avx.a      \
+	libremill_x86_avx512.a   \
+	libremill_amd64.a        \
+	libremill_amd64_avx.a    \
+	libremill_amd64_avx512.a \
 
 all: libremill.a  ${AARCH64_TARGETS} ${X86_TARGETS}
 
@@ -60,15 +61,15 @@ libremill.a: $(OBJ_REMILL)
 	ar qc $@ $^
 	ranlib $@
 
-# === [ libremill_<ISA>.so ] ===================================================
+# === [ libremill_<ISA>.a ] ====================================================
 
 # --- [ AArch64 ] --------------------------------------------------------------
 
-libremill_aarch64be.so: ADDRESS_SIZE=64
-libremill_aarch64be.so: LITTLE_ENDIAN=0
+libremill_aarch64be.a: ADDRESS_SIZE=64
+libremill_aarch64be.a: LITTLE_ENDIAN=0
 
-libremill_aarch64.so: ADDRESS_SIZE=64
-libremill_aarch64.so: LITTLE_ENDIAN=1
+libremill_aarch64.a: ADDRESS_SIZE=64
+libremill_aarch64.a: LITTLE_ENDIAN=1
 
 REMILL_AARCH64_DEFINITIONS=-DADDRESS_SIZE=${ADDRESS_SIZE} -DLITTLE_ENDIAN=${LITTLE_ENDIAN}
 
@@ -89,34 +90,38 @@ Arch/AArch64/Runtime/BasicBlock.o: Arch/AArch64/Runtime/BasicBlock.cpp
 Arch/AArch64/Runtime/Instructions.o: Arch/AArch64/Runtime/Instructions.cpp
 	clang -c -O3 -g0 -I../ ${REMILL_AARCH64_DEFINITIONS} -o $@ $<
 
-libremill_aarch64.so libremill_aarch64be.so: ${OBJ_REMILL_AARCH64} ${DEPS_REMILL_AARCH64}
-	clang -shared -o $@ ${OBJ_REMILL_AARCH64}
+libremill_aarch64.a libremill_aarch64be.a: ${OBJ_REMILL_AARCH64} ${DEPS_REMILL_AARCH64}
+	ar qc $@ ${OBJ_REMILL_AARCH64}
+	ranlib $@
+
+#clang -shared -o $@ ${OBJ_REMILL_AARCH64}
+#-L./ -lremill
 
 # --- [ X86 ] ------------------------------------------------------------------
 
-libremill_x86.so: ADDRESS_SIZE=32
-libremill_x86.so: HAS_FEATURE_AVX=0
-libremill_x86.so: HAS_FEATURE_AVX512=0
+libremill_x86.a: ADDRESS_SIZE=32
+libremill_x86.a: HAS_FEATURE_AVX=0
+libremill_x86.a: HAS_FEATURE_AVX512=0
 
-libremill_x86_avx.so: ADDRESS_SIZE=32
-libremill_x86_avx.so: HAS_FEATURE_AVX=1
-libremill_x86_avx.so: HAS_FEATURE_AVX512=0
+libremill_x86_avx.a: ADDRESS_SIZE=32
+libremill_x86_avx.a: HAS_FEATURE_AVX=1
+libremill_x86_avx.a: HAS_FEATURE_AVX512=0
 
-libremill_x86_avx512.so: ADDRESS_SIZE=32
-libremill_x86_avx512.so: HAS_FEATURE_AVX=1
-libremill_x86_avx512.so: HAS_FEATURE_AVX512=1
+libremill_x86_avx512.a: ADDRESS_SIZE=32
+libremill_x86_avx512.a: HAS_FEATURE_AVX=1
+libremill_x86_avx512.a: HAS_FEATURE_AVX512=1
 
-libremill_amd64.so: ADDRESS_SIZE=64
-libremill_amd64.so: HAS_FEATURE_AVX=0
-libremill_amd64.so: HAS_FEATURE_AVX512=0
+libremill_amd64.a: ADDRESS_SIZE=64
+libremill_amd64.a: HAS_FEATURE_AVX=0
+libremill_amd64.a: HAS_FEATURE_AVX512=0
 
-libremill_amd64_avx.so: ADDRESS_SIZE=64
-libremill_amd64_avx.so: HAS_FEATURE_AVX=1
-libremill_amd64_avx.so: HAS_FEATURE_AVX512=0
+libremill_amd64_avx.a: ADDRESS_SIZE=64
+libremill_amd64_avx.a: HAS_FEATURE_AVX=1
+libremill_amd64_avx.a: HAS_FEATURE_AVX512=0
 
-libremill_amd64_avx512.so: ADDRESS_SIZE=64
-libremill_amd64_avx512.so: HAS_FEATURE_AVX=1
-libremill_amd64_avx512.so: HAS_FEATURE_AVX512=1
+libremill_amd64_avx512.a: ADDRESS_SIZE=64
+libremill_amd64_avx512.a: HAS_FEATURE_AVX=1
+libremill_amd64_avx512.a: HAS_FEATURE_AVX512=1
 
 REMILL_X86_DEFINITIONS=-DADDRESS_SIZE=${ADDRESS_SIZE} -DHAS_FEATURE_AVX=${HAS_FEATURE_AVX} -DHAS_FEATURE_AVX512=${HAS_FEATURE_AVX512}
 
@@ -137,8 +142,12 @@ Arch/X86/Runtime/BasicBlock.o: Arch/X86/Runtime/BasicBlock.cpp
 Arch/X86/Runtime/Instructions.o: Arch/X86/Runtime/Instructions.cpp
 	clang -c -fPIC -O3 -g0 -I../ ${REMILL_X86_DEFINITIONS} -o $@ $<
 
-libremill_x86.so libremill_x86_avx.so libremill_x86_avx512.so libremill_amd64.so libremill_amd64_avx.so libremill_amd64_avx512.so: ${OBJ_REMILL_X86} ${DEPS_REMILL_X86}
-	clang -shared -o $@ ${OBJ_REMILL_X86}
+libremill_x86.a libremill_x86_avx.a libremill_x86_avx512.a libremill_amd64.a libremill_amd64_avx.a libremill_amd64_avx512.a: ${OBJ_REMILL_X86} ${DEPS_REMILL_X86}
+	ar qc $@ ${OBJ_REMILL_X86}
+	ranlib $@
+
+#clang -shared -o $@ ${OBJ_REMILL_X86}
+#-L./ -lremill
 
 # ______________________________________________________________________________
 
